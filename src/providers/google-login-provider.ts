@@ -19,18 +19,18 @@ export class GoogleLoginProvider extends BaseLoginProvider {
   initialize(): Promise<SocialUser> {
     return new Promise((resolve, reject) => {
       this.loadScript(this.loginProviderObj, () => {
-          gapi.load('auth2', () => {
-            this.auth2 = gapi.auth2.init({
-              client_id: this.clientId,
-              scope: 'email'
-            });
-
-            this.auth2.then(() => {
-              if (this.auth2.isSignedIn.get()) {
-                resolve(this.drawUser());
-              }
-            });
+        gapi.load('auth2', () => {
+          this.auth2 = gapi.auth2.init({
+            client_id: this.clientId,
+            scope: 'email'
           });
+
+          this.auth2.then(() => {
+            if (this.auth2.isSignedIn.get()) {
+              resolve(this.drawUser());
+            }
+          });
+        });
       });
     });
   }
@@ -41,6 +41,8 @@ export class GoogleLoginProvider extends BaseLoginProvider {
     let authResponseObj = this.auth2.currentUser.get().getAuthResponse(true);
     user.id = profile.getId();
     user.name = profile.getName();
+    user.firstName = profile.getGivenName();
+    user.lastName = profile.getFamilyName();
     user.email = profile.getEmail();
     user.image = profile.getImageUrl();
     user.token = authResponseObj.access_token;
